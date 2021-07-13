@@ -37,7 +37,6 @@ class FirstViewModel(
                     is FirstContract.MainPartialState.DataLoaded -> {
                         currentState.copy(mainListState = FirstContract.MainListState.Success(data = partialState.data))
                     }
-                    FirstContract.MainPartialState.Nothing -> { currentState }
                     FirstContract.MainPartialState.DataLoading -> {
                         currentState.copy(mainListState = FirstContract.MainListState.Loading)
                     }

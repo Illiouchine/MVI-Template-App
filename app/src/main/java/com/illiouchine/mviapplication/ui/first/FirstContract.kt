@@ -25,7 +25,7 @@ interface FirstContract {
     }
 
     sealed class MainPartialState : UiPartialState{
-        object Nothing : MainPartialState()
+        //object Nothing : MainPartialState()
         object DataLoading: MainPartialState()
         data class DataLoaded(val data :List<String>): MainPartialState()
         data class DataError(val errorCode: String):  MainPartialState()

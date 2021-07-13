@@ -14,7 +14,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  *
  * According to this : https://www.youtube.com/watch?v=JnN6EFZ6DO8
- * this is some extention function to reduce boilerplate code around flow
+ * this is some extension function to reduce boilerplate code around flow
  *
  * this explain that we shouldn't use
  * lifecycle.launchWhenStarted { ....  }

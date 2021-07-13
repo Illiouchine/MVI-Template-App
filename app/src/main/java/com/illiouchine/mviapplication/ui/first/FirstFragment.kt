@@ -52,7 +52,7 @@ class FirstFragment : Fragment() {
             viewModel.dispatchIntent(FirstContract.MainIntent.ReloadDataClick)
         }
 
-        lifecycleScope.launchWhenStarted {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.uiState.collect { uiState ->
                 when (uiState.mainListState) {
                     is FirstContract.MainListState.Error -> {
@@ -77,7 +77,7 @@ class FirstFragment : Fragment() {
             }
         }
 
-        lifecycleScope.launchWhenStarted {
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.event.collect { event ->
                 when (event) {
                     is FirstContract.MainEvent.ShowToast -> {

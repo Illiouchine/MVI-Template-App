@@ -12,19 +12,31 @@ import kotlinx.coroutines.launch
  * The View should observe uiState and event
  *
  * flow of action
- * dispatched intent will be mapped into action
- * Action will process somme external code and generate a Partial State
- * Partial State will be reduced into a newState
+ * 1. Intent -> 2. Action -> 3. PartialState -> 4. State
  *
- * We separate UserIntend
+ * 1. dispatched intent will be mapped into action
+ * 2. Action will process somme external code and generate a Partial State
+ * 3. Partial State will be reduced into a new State
+ *
+ * With the StateFlow, Todo ....
+ *
+ * With the shared flow, events are broadcast to an unknown number (zero or more) of subscribers.
+ * In the absence of a subscriber, any posted event is immediately dropped.
+ * It is a design pattern to use for events that must be processed immediately or not at all.
+ *
+ * With the channel, each event is delivered to a single subscriber.
+ * An attempt to post an event without subscribers will suspend as soon as the channel buffer becomes full,
+ * waiting for a subscriber to appear. Posted events are never dropped by default.
+ *
  */
-abstract class MviViewModel<
-        Intent : UiIntent,
+abstract class MviViewModel
+<Intent : UiIntent,
         State : UiState,
         Event : UiEvent,
         PartialState : UiPartialState,
         Action : UiAction
-        > : ViewModel() {
+        > :
+    ViewModel() {
 
     // Create Initial State of View
     private val initialState: State by lazy { createInitialState() }
@@ -99,12 +111,12 @@ abstract class MviViewModel<
         viewModelScope.launch { _event.send(eventValue) }
     }
 
-    protected fun setPartialState(builder: () -> PartialState){
+    protected fun setPartialState(builder: () -> PartialState) {
         val newPartialState = builder()
         viewModelScope.launch { partialStateChannel.send(newPartialState) }
     }
 
-    protected fun setAction(builder: () -> Action){
+    protected fun setAction(builder: () -> Action) {
         val newAction = builder()
         viewModelScope.launch { actionChannel.send(newAction) }
     }
