@@ -18,7 +18,8 @@ import kotlinx.coroutines.launch
  * 2. Action will process somme external code and generate a Partial State
  * 3. Partial State will be reduced into a new State
  *
- * With the StateFlow, Todo ....
+ * With the StateFlow, events are broadcast to an unknown number (zero or more) of subscribers.
+ * Always emit somethings
  *
  * With the shared flow, events are broadcast to an unknown number (zero or more) of subscribers.
  * In the absence of a subscriber, any posted event is immediately dropped.
