@@ -1,9 +1,9 @@
 package com.illiouchine.mviapplication.ui.first
 
-import com.illiouchine.mviapplication.data.DataRepository
 import com.illiouchine.mviapplication.core.MviViewModel
 import com.illiouchine.mviapplication.core.Reducer
-import kotlinx.coroutines.flow.*
+import com.illiouchine.mviapplication.data.DataRepository
+import kotlinx.coroutines.flow.collect
 
 class FirstViewModel(
     private val repository: DataRepository = DataRepository()
@@ -32,7 +32,11 @@ class FirstViewModel(
             ): FirstContract.MainState {
                 return when (partialState) {
                     is FirstContract.MainPartialState.DataError -> {
-                        currentState.copy(mainListState = FirstContract.MainListState.Error(errorCode = partialState.errorCode))
+                        currentState.copy(
+                            mainListState = FirstContract.MainListState.Error(
+                                errorCode = partialState.errorCode
+                            )
+                        )
                     }
                     is FirstContract.MainPartialState.DataLoaded -> {
                         currentState.copy(mainListState = FirstContract.MainListState.Success(data = partialState.data))
@@ -50,7 +54,7 @@ class FirstViewModel(
                 FirstContract.MainAction.GoToDetail(intent.data)
             }
             FirstContract.MainIntent.ReloadDataClick -> {
-                setEvent { FirstContract.MainEvent.ShowToast("Reload Click")}
+                setEvent { FirstContract.MainEvent.ShowToast("Reload Click") }
                 FirstContract.MainAction.LoadData
             }
         }
@@ -58,7 +62,7 @@ class FirstViewModel(
     override suspend fun handleAction(action: FirstContract.MainAction) =
         when (action) {
             is FirstContract.MainAction.GoToDetail -> {
-                setEvent { FirstContract.MainEvent.GoToDetail(action.dataClicked)}
+                setEvent { FirstContract.MainEvent.GoToDetail(action.dataClicked) }
             }
             FirstContract.MainAction.LoadData -> {
                 setPartialState { FirstContract.MainPartialState.DataLoading }
@@ -67,7 +71,7 @@ class FirstViewModel(
                         .collect {
                             setPartialState { FirstContract.MainPartialState.DataLoaded(it) }
                         }
-                }catch (e:Exception){
+                } catch (e: Exception) {
                     setPartialState { FirstContract.MainPartialState.DataError("Load Data Error") }
                 }
             }
