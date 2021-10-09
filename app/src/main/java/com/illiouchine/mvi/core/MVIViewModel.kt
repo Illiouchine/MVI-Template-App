@@ -1,4 +1,4 @@
-package com.illiouchine.mviapplication.core
+package com.illiouchine.mvi.core
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -30,20 +30,14 @@ import kotlinx.coroutines.launch
  * waiting for a subscriber to appear. Posted events are never dropped by default.
  *
  */
-abstract class MviViewModel
-<Intent : UiIntent,
-        State : UiState,
-        Event : UiEvent,
-        PartialState : UiPartialState,
-        Action : UiAction
-        > :
+abstract class MviViewModel<Intent : UiIntent, Action : UiAction, PartialState : UiPartialState, State : UiState, Event : UiEvent> :
     ViewModel() {
 
     // Create Initial State of View
     private val initialState: State by lazy { createInitialState() }
     protected abstract fun createInitialState(): State
 
-    private val _uiState: MutableStateFlow<State> = MutableStateFlow(initialState)
+    private val _uiState: MutableStateFlow<State> by lazy { MutableStateFlow(initialState) }
     val uiState = _uiState.asStateFlow()
 
     private val _intent: MutableSharedFlow<Intent> = MutableSharedFlow()
@@ -67,6 +61,7 @@ abstract class MviViewModel
     private fun observeAction() {
         viewModelScope.launch {
             for (action in actionChannel) {
+                println("MVI -> handle action : $action")
                 handleAction(action)
             }
         }
@@ -75,6 +70,7 @@ abstract class MviViewModel
     private fun observeReducer() {
         viewModelScope.launch {
             for (partialState in partialStateChannel) {
+                println("MVI -> reduce uiState : ${uiState.value} with partialState : $partialState")
                 val newState = reducer.reduce(uiState.value, partialState)
                 _uiState.value = newState
             }
@@ -88,6 +84,7 @@ abstract class MviViewModel
     private fun subscribeUserIntent() {
         viewModelScope.launch {
             intent.collect {
+                println("MVI -> handle User Intent $it")
                 val action = handleUserIntent(it)
                 actionChannel.send(action)
             }
@@ -134,3 +131,18 @@ abstract class MviViewModel
 abstract class Reducer<UiState, UiPartialState> {
     abstract fun reduce(currentState: UiState, partialState: UiPartialState): UiState
 }
+
+// User Action
+interface UiIntent
+
+// Action
+interface UiAction
+
+// PartialState of View ? should be here ?
+interface UiPartialState
+
+// State of View
+interface UiState
+
+// Effect which we want to show only one
+interface UiEvent

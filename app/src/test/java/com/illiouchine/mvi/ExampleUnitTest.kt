@@ -1,4 +1,4 @@
-package com.illiouchine.mviapplication
+package com.illiouchine.mvi
 
 import org.junit.Test
 
