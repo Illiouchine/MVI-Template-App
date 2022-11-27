@@ -141,7 +141,7 @@ interface UiPartialState
 
 // State of View
 interface UiState{
-    val event: UiEvent
+    val event: UiEvent?
 }
 
 // Effect which we want to show only one
