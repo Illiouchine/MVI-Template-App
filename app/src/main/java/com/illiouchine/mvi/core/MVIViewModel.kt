@@ -25,12 +25,18 @@ import kotlinx.coroutines.launch
  * In the absence of a subscriber, any posted event is immediately dropped.
  * It is a design pattern to use for events that must be processed immediately or not at all.
  *
+ * Old : Using channel to send Even to the view
  * With the channel, each event is delivered to a single subscriber.
  * An attempt to post an event without subscribers will suspend as soon as the channel buffer becomes full,
  * waiting for a subscriber to appear. Posted events are never dropped by default.
+ * issues : https://github.com/Kotlin/kotlinx.coroutines/issues/2886
+ * Google recommendation : https://developer.android.com/topic/architecture/ui-layer/events#other-use-cases
+ *
+ * Solution - Move the UiEvent like message or navigation event inside the UiState
+ *
  *
  */
-abstract class MviViewModel<Intent : UiIntent, Action : UiAction, PartialState : UiPartialState, State : UiState, Event : UiEvent> :
+abstract class MviViewModel<Intent : UiIntent, Action : UiAction, PartialState : UiPartialState, State : UiState> :
     ViewModel() {
 
     // Create Initial State of View
@@ -42,9 +48,6 @@ abstract class MviViewModel<Intent : UiIntent, Action : UiAction, PartialState :
 
     private val _intent: MutableSharedFlow<Intent> = MutableSharedFlow()
     private val intent = _intent.asSharedFlow()
-
-    private val _event: Channel<Event> = Channel()
-    val event = _event.receiveAsFlow()
 
     private val partialStateChannel = Channel<PartialState>()
     private val actionChannel = Channel<Action>()
@@ -104,11 +107,6 @@ abstract class MviViewModel<Intent : UiIntent, Action : UiAction, PartialState :
      */
     protected abstract suspend fun handleAction(action: Action)
 
-    protected fun setEvent(builder: () -> Event) {
-        val eventValue = builder()
-        viewModelScope.launch { _event.send(eventValue) }
-    }
-
     protected fun setPartialState(builder: () -> PartialState) {
         val newPartialState = builder()
         viewModelScope.launch { partialStateChannel.send(newPartialState) }
@@ -142,7 +140,9 @@ interface UiAction
 interface UiPartialState
 
 // State of View
-interface UiState
+interface UiState{
+    val events: List<UiEvent>
+}
 
 // Effect which we want to show only one
 interface UiEvent
